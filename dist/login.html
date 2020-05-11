@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>亮亮社区</title>
+    <script src="static/js/jquery-1.12.4.min.js"></script>
+    <script src="static/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="static/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="static/css/bootstrap-theme.min.css"/>
+
+    <script>
+        $(function () {
+            var token = localStorage.getItem("token");
+            if (token != null && token != "") {
+                $.ajax({
+                    type: "post",
+                    url: "/api/admin/refreshToken",
+                    contentType: "application/json",
+                    cache: false,
+                    beforeSend: function(XHR) {
+                        XHR.setRequestHeader("Authorization", token);
+                    },
+                    success: function (result) {
+                        if (result.code == 200) {
+                            localStorage.setItem("token", result.data.token);
+                            localStorage.setItem("username", result.data.username);
+                            window.location.href = "http://192.168.154.201:8001/index.html";
+                            // window.location.href = "http://192.168.101.201:8001/index.html";
+                        }
+                    }
+                });
+            }
+        });
+
+        $(document).ready(function () {
+            $("#gotoSubmit").click(function () {
+                var loginParam = {};
+                loginParam.username = $("#username")[0].value;
+                loginParam.password = $("#password")[0].value;
+
+                $.ajax({
+                    type: "POST",
+                    url: "/api/admin/login",
+                    contentType: "application/json",
+                    cache: false,
+                    dataType: "json",
+                    data: JSON.stringify(loginParam),
+                    success: function (result) {
+                        if (result.code == 200) {
+                            setTokenCookie(result);
+                            window.location.href = "http://192.168.154.201:8001/index.html";
+                            //window.location.href = "http://192.168.101.201:8001/index.html";
+                        } else {
+                            alert(result.message);
+                        }
+                    },
+                    error: function () {
+                        alert("登录失败");
+                    }
+                });
+            });
+        });
+
+        function setTokenCookie(result) {
+            localStorage.setItem("token", result.data.tokenHead + " " + result.data.token);
+            localStorage.setItem("username", result.data.username);
+        }
+    </script>
+</head>
+<body class="cm-login">
+
+<div class="text-center" style="padding:90px 0 30px 0;background:#fff;border-bottom:1px solid #ddd">
+    <img src="static/img/liangliang_login.PNG" width="300" height="45">
+</div>
+
+<div class="col-sm-6 col-md-4 col-lg-3" style="margin:40px auto; float:none;">
+    <form id="formHand">
+        <div class="col-xs-12">
+            <div class="form-group">
+                <div class="input-group">
+                    <div class="input-group-addon"><i class="glyphicon glyphicon-user"></i></div>
+                    <input type="text" name="username" id="username" class="form-control" placeholder="用户名/邮箱/手机">
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="input-group">
+                    <div class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></div>
+                    <input type="password" name="password" id="password" class="form-control" placeholder="密码">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-6">
+            <div class="checkbox"><label><input type="checkbox"> 记住密码 </label></div>
+        </div>
+        <div class="col-xs-6">
+            <div id="gotoSubmit" class="btn btn-block btn-primary">登录</div>
+        </div>
+    </form>
+</div>
+</body>
+</html>

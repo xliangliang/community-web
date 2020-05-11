@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>亮亮社区</title>
+    <script src="static/js/jquery-1.12.4.min.js"></script>
+    <script src="static/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="static/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="static/css/bootstrap-theme.min.css"/>
+    <script>
+        $(document).ready(function () {
+            $("#iusername").text(localStorage.getItem("username"));
+            $("#ilogin").css("visibility","hidden");
+        });
+
+        $(function () {
+            $("#ppublish").click(function () {
+                var publishParam = {};
+                publishParam.title = $("#ptitle")[0].value;
+                publishParam.supplement = $("#psupplement")[0].value;
+                publishParam.label = $("#plabel")[0].value;
+
+                $.ajax({
+                    type: "post",
+                    url: "/api/publish",
+                    contentType: "application/json",
+                    cache: false,
+                    dataType: "json",
+                    data: JSON.stringify(publishParam),
+                    beforeSend: function (XHR) {
+                        XHR.setRequestHeader("Authorization",  localStorage.getItem("token"));
+                    },
+                    success: function (result) {
+                        if (result.code == 200) {
+                            alert("发布成功");
+                            window.location.reload();
+                        } else {
+                            alert("发布失败");
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+</head>
+<body>
+<nav class="navbar navbar-default">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                    data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                <span class="sr-only">亮亮社区</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="index.html">亮亮社区</a>
+        </div>
+
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <form class="navbar-form navbar-left">
+                <div class="form-group">
+                    <input type="text" class="form-control" placeholder="搜索问题、话题或人">
+                </div>
+                <button type="submit" class="btn btn-default">搜索</button>
+            </form>
+            <ul class="nav navbar-nav">
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                       aria-expanded="false">发现 <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="#">Action</a></li>
+                        <li><a href="#">Another action</a></li>
+                        <li><a href="#">Something else here</a></li>
+                        <li role="separator" class="divider"></li>
+                        <li><a href="#">Separated link</a></li>
+                        <li role="separator" class="divider"></li>
+                        <li><a href="#">One more separated link</a></li>
+                    </ul>
+                </li>
+                <li><a href="#">分享</a></li>
+                <li><a href="#">文章</a></li>
+                <li><a href="#">话题</a></li>
+                <li><a href="#">活动</a></li>
+                <li><a href="#">帮助</a></li>
+            </ul>
+
+            <ul class="nav navbar-nav navbar-right navbar-collapse">
+                <li class="nav-item" id="ilogin">
+                    <a href="login.html" class="nav-link">登录</a>
+                </li>
+                <li class="nav-item" id="ipublic">
+                    <a href="public.html" class="nav-link glyphicon glyphicon-edit">发布</a>
+                </li>
+                <li class="nav-item dropdown" id="iinfo">
+
+                    <a id="dropdownSubMenu1" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                       class="nav-link dropdown-toggle"><span id="iusername"></span> <span class="caret"></span></a>
+                    <ul aria-labelledby="dropdownSubMenu1" class="dropdown-menu border-0 shadow">
+                        <li><a href="#" class="dropdown-item">个人信息 </a></li>
+                        <li role="separator" class="divider"></li>
+                        <li><a href="#" class="dropdown-item">退出登录</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav><!--nav-->
+
+<div class="container-fluid" style="margin: 30px">
+    <div class="row">
+        <div class="col-md-9">
+            <h2><span class="glyphicon glyphicon-edit" aria-hidden="true">发布</span></h2>
+            <hr>
+
+            <form>
+                <div class="form-group">
+                    <label for="ptitle">问题标题</label>
+                    <input type="email" class="form-control" id="ptitle" placeholder="问题标题...">
+                </div>
+
+                <div class="form-group">
+                    <label for="psupplement">问题补充</label>
+                    <textarea class="form-control" rows="9" id="psupplement" placeholder="问题补充"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="plabel">问题标题</label>
+                    <input type="text" class="form-control" id="plabel" placeholder="添加标签">
+                </div>
+
+                <button type="button" class="btn btn-success" id="ppublish" style="float: right;margin-bottom: 15px">发布</button>
+            </form>
+
+
+        </div>
+
+        <div class="col-md-3">
+            <h2>问题发布指南</h2>
+            <span>暂无</span>
+        </div>
+    </div>
+</div>
+</body>
+</html>
