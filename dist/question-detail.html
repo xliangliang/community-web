@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>问题详情</title>
+    <script src="static/js/jquery-1.12.4.min.js"></script>
+    <script src="static/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="static/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="static/css/bootstrap-theme.min.css"/>
+    <script src="static/js/my-self.js"></script>
+
+    <script>
+        var getQuestionUrl = "/api/index/getQuestion";
+        var getCommentUrl = "/api/comment/getAllComment";
+        var addCommentUrl = "/api/comment/addComment";
+        var contextId = "#commentAnswer";
+        var pageId = "#cPage";
+        // 默认页条数
+        var DefaultPageSize = 10;
+
+
+        $(document).ready(function () {
+            $("#pHeader").load("index_header.html");
+        });
+
+        $(function () {
+            var paramArr = getParamByUrl();
+            var questionId = paramArr["questionId"];
+            if (questionId == undefined) {
+                alert("不合法操作！");
+                window.location.href = "index.html";
+            }
+
+            $.ajax({
+                type: "POST",
+                url: getQuestionUrl,
+                cache: false,
+                dataType: "json",
+                data: {
+                    "questionId": questionId
+                },
+                beforeSend: function (XHR) {
+                    XHR.setRequestHeader("Authorization", localStorage.getItem("token"));
+                },
+                success: function (result) {
+                    if (result.code == 200) {
+                        $("#questionId").text(result.data.questionId);
+                        $("#title").text(result.data.title);
+                        $("#lable").text(result.data.label);
+                        $(".author").text(result.data.username);
+                        $("#createTime").text(timeToString(result.data.createTime));
+                        $("#viewTotal").text(result.data.viewCount);
+                        $("#supplement").text(result.data.supplement);
+                        $("#commentTotal").text(result.data.commentCount);
+                        $("#icon").attr("src",result.data.icon);
+
+                        $("#iusername").text(localStorage.getItem("username"));
+                        $("#ilogin").css("visibility", "hidden");
+
+                        addContextPost(1, DefaultPageSize);
+                    } else {
+                        alert("获取问题失败");
+                        window.location.href = "index.html";
+                    }
+                }
+            });
+
+            $("#comment").click(function () {
+                $(this).css("display", "none");
+                $("#commentText").css("display", "block");
+                $("#submitComment").css("display", "block");
+
+            });
+
+            $("#submitComment").click(function () {
+                var value = $("#commentText")[0].value.trim();
+                if (value != "") {
+                    var commentParam = {};
+                    commentParam.questionId = $("#questionId")[0].textContent;
+                    commentParam.parentId = 0;
+                    commentParam.comment = value;
+                    $.ajax({
+                        type: "POST",
+                        url: addCommentUrl,
+                        contentType: "application/json",
+                        cache: false,
+                        dataType: "json",
+                        data: JSON.stringify(commentParam),
+                        beforeSend: function (XHR) {
+                            XHR.setRequestHeader("Authorization",  localStorage.getItem("token"));
+                        },
+                        success: function (result) {
+                            if (result.code == 200) {
+                                window.location.reload();
+                            } else {
+                                alert(result.message)
+                            }
+                        }
+                    });
+                } else {
+                    alert("请输入回复内容!!")
+                }
+            });
+        });
+
+        function changePage(obj) {
+            var curPage = obj.text;
+            addContextPost(curPage, DefaultPageSize);
+        }
+
+        function gotoStart() {
+            addContextPost(1, DefaultPageSize);
+        }
+
+        function gotoEnd() {
+            var curPage = $("#getPageTotal")[0].textContent;
+            addContextPost(curPage, DefaultPageSize);
+        }
+
+        function addContextPost(curPage, pageSize) {
+            var questionId = $("#questionId")[0].textContent;
+            $.ajax({
+                type: "POST",
+                url: getCommentUrl,
+                cache: false,
+                dataType: "json",
+                data: {
+                    "questionId": questionId,
+                    "pageNum": curPage,
+                    "pageSize": pageSize
+                },
+                beforeSend: function (XHR) {
+                    XHR.setRequestHeader("Authorization", localStorage.getItem("token"));
+                },
+                success: function (result) {
+                    if (result.code == 200) {
+                        var item;
+                        $(".answer-text").remove();
+                        $.each(result.data.list, function (index, value) {
+                            item += "<div class=\"media answer-text\" style=\"height: 80px\">"+
+                                    "    <div class=\"media-left\">"+
+                                    "        <img src=\""+ value.icon+"\" alt=\"用户头像\" class=\"img-rounded pull-left\""+
+                                    "             style=\"width: 80px; height: 80px\">"+
+                                    "    </div>"+
+                                    "    <div class=\"media-body\">"+
+                                    "        <div class=\"col-md-12\">"+
+                                    "            <span>"+ value.username +"</span>"+
+                                    "        </div>"+
+                                    "        <div class=\"col-md-6\" style=\"width: 700px; word-wrap: break-word\">"+
+                                    "            <span>"+ value.comment +"</span>"+
+                                    "        </div>"+
+                                    "        <span class=\"pull-right\">"+ timeToString(value.createTime) +"</span>"+
+                                    "    </div>"+
+                                    "</div>";
+                        });
+                        $(contextId).append(item);
+                        createPage(result.data.totalPage, result.data.pageNum, pageId);
+                    }
+                }
+            });
+        }
+    </script>
+</head>
+<body>
+<!-- 头部 -->
+<div id="pHeader"></div>
+
+<div class="container-fluid" style="margin-left: 250px">
+    <div class="row">
+        <div class="col-md-9">
+            <div>
+                <span id="questionId" style="display: none"></span>
+                <h2><span id="title"></span></h2>
+                <span>
+                标签：<span id="lable"></span> |
+                作者：<span class="author"></span> |
+                发布时间：<span id="createTime"></span> |
+                阅读数：<span id="viewTotal"></span>
+            </span>
+                <hr/>
+                <div style="width: 780px; word-wrap: break-word">
+                    <span id="supplement"></span>
+                </div>
+                <hr/>
+                <textarea class="form-control" rows="3" id="commentText" style="display: none"></textarea>
+                <button id="submitComment" class="btn btn-info" type="button" style="display: none;float: right; margin-top: 15px;margin-right: 15px">确定</button>
+                <button id="comment" class="btn btn-info" type="button">回复</button>
+            </div>
+
+            <div style="margin-top: 50px">
+                <h3><span id="commentTotal"></span> 个回复</h3>
+                <hr/>
+                <div id="commentAnswer">
+                    <!-- 回复box模板 -->
+                    <!--<div class="media answer-text" style="height: 80px">
+                        <div class="media-left">
+                            <img src="static/img/liangliang_login.PNG" alt="用户头像" class="img-rounded pull-left"
+                                 style="width: 80px; height: 80px">
+                        </div>
+                        <div class="media-body">
+                            <div class="col-md-12">
+                                <span>liangliang</span>
+                            </div>
+                            <div class="col-md-6" style="width: 700px; word-wrap: break-word">
+                                <span>answer</span>
+                            </div>
+                            <span class="pull-right">11</span>
+                        </div>
+                    </div>-->
+
+                </div>
+                <div class="col-md-12">
+                    <ul class="pagination pull-right" id="cPage">
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <h3>发起人</h3>
+            <img id="icon" style="width: 50px; height: 50px" alt="用户头像">
+            <span class="author"></span>
+        </div>
+    </div>
+</div>
+</body>
+</html>

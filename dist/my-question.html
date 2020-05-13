@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>我的问题</title>
+    <script src="static/js/jquery-1.12.4.min.js"></script>
+    <script src="static/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="static/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="static/css/bootstrap-theme.min.css"/>
+    <script src="static/js/my-self.js"></script>
+
+    <script>
+
+        var url = "/api/index/adminQuestion";
+        var contextId = "#questionText";
+        var pageId = "#cPage";
+        // 默认页条数
+        var DefaultPageSize = 10;
+
+        $(document).ready(function () {
+            $("#pHeader").load("index_header.html");
+        });
+
+        $(function () {
+            addContextPost(1, DefaultPageSize);
+        });
+
+        function changePage(obj) {
+            var curPage = obj.text;
+            addContextPost(curPage, DefaultPageSize);
+        }
+
+        function gotoStart() {
+            addContextPost(1, DefaultPageSize);
+        }
+
+        function gotoEnd() {
+            var curPage = $("#getPageTotal")[0].textContent;
+            addContextPost(curPage, DefaultPageSize);
+        }
+
+        function addContextPost(curPage, pageSize) {
+            $.ajax({
+                type: "POST",
+                url: url,
+                cache: false,
+                dataType: "json",
+                data: {
+                    "pageNum": curPage,
+                    "pageSize": pageSize
+                },
+                beforeSend: function (XHR) {
+                    XHR.setRequestHeader("Authorization", localStorage.getItem("token"));
+                },
+                success: function (result) {
+                    if (result.code == 200) {
+                        var item;
+                        $(".question-text").remove();
+                        $.each(result.data.list, function (index, value) {
+                            item += "<div class=\"col-md-12 question-text\" style=\"height: 60px\">\n" +
+                                "        <div class=\"media\">\n" +
+                                "            <div class=\"media-left\">\n" +
+                                "                <img src=" + value.icon + " alt=\"用户头像\" class=\"img-rounded pull-left\"\n" +
+                                "                    style=\"width: 60px; height: 60px\">\n" +
+                                "            </div>\n" +
+                                "            <div class=\"media-body\">\n" +
+                                "                <h4 class=\"media-heading\"> <a href=\"question-detail.html?questionId="+ value.questionId  +" \">" + value.title + "</a> </h4>\n" +
+                                "                <span class=\"text-desc\"> <a href=\"#\">" + value.username + "</a> 发起了问题 • " + value.commentCount + " 个回复 • " + value.viewCount + " 次浏览 • " + timeToString(value.createTime) + "</span>\n" +
+                                "            </div>\n" +
+                                "        </div>\n" +
+                                "    </div>";
+                        });
+                        $(contextId).append(item);
+                        createPage(result.data.totalPage, result.data.pageNum, pageId);
+                        $("#iusername").text(localStorage.getItem("username"));
+                        $("#ilogin").css("visibility", "hidden");
+                    }
+                }
+            });
+        }
+    </script>
+</head>
+<body>
+<!-- 头部 -->
+<div id="pHeader"></div>
+
+<div class="container-fluid" style="margin-left: 250px">
+    <div class="row">
+        <div class="col-md-9">
+            <h2><span class="glyphicon glyphicon-question-sign" aria-hidden="true">我的问题</span></h2>
+            <hr/>
+
+            <div style="margin-top: 30px">
+                <div id="questionText"></div>
+
+                <div class="col-md-12">
+                    <ul class="pagination pull-right" id="cPage">
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <h2>热门话题</h2>
+            <span id="test-span">以后实现</span>
+        </div>
+
+    </div>
+</div>
+</body>
+</html>

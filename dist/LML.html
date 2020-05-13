@@ -8,25 +8,12 @@
     <link rel="stylesheet" href="static/css/bootstrap.min.css"/>
     <link rel="stylesheet" href="static/css/bootstrap-theme.min.css"/>
     <script>
-        $(function () {
-            var time = new Date();
-            console.log(timeStamp2String(time));
-        });
 
-        function timeStamp2String(time) {
-            var datetime = new Date(time);
-            var year = datetime.getFullYear();
-            var month = datetime.getMonth() + 1 < 10 ? "0" + (datetime.getMonth() + 1) : datetime.getMonth() + 1;
-            var date = datetime.getDate() < 10 ? "0" + datetime.getDate() : datetime.getDate();
-            var hour = datetime.getHours() < 10 ? "0" + datetime.getHours() : datetime.getHours();
-            var minute = datetime.getMinutes() < 10 ? "0" + datetime.getMinutes() : datetime.getMinutes();
-            var second = datetime.getSeconds() < 10 ? "0" + datetime.getSeconds() : datetime.getSeconds();
-            return year + "-" + month + "-" + date + " " + hour + ":" + minute + ":" + second;
-        }
     </script>
 </head>
 <body>
-<div class="dropdown">
+<div class="container-fluid">
+    <a href="question-detail.html?questionId=1">1111111</a>
 </div>
 </body>
 </html>

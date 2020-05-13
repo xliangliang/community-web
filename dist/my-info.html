@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>个人信息</title>
+    <script src="static/js/jquery-1.12.4.min.js"></script>
+    <script src="static/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="static/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="static/css/bootstrap-theme.min.css"/>
+
+    <script>
+        $(document).ready(function () {
+            $("#pHeader").load("index_header.html");
+        });
+
+        $(function () {
+            var token = localStorage.getItem("token");
+            $.ajax({
+                type: "GET",
+                url: "/api/admin/info",
+                contentType: "application/json",
+                cache: false,
+                beforeSend: function (XHR) {
+                    XHR.setRequestHeader("Authorization", token);
+                },
+                success: function (result) {
+                    if (result.code == 200) {
+                        $("#ilogin").css("visibility","hidden");
+                        $("#iusername").text(result.data.username);
+                        $("#userImg").attr("src",result.data.icon);
+                        $("#musername").text(result.data.username);
+                        $("#questionNum").text(result.data.questionTotal);
+                        $("#fansNum").text(result.data.fansTotal);
+                        $("#followNum").text(result.data.followTotal);
+                    } else {
+                        alert("获取个人信息失败");
+                        window.location.href = "index.html";
+                    }
+                }
+            });
+        });
+    </script>
+</head>
+<body>
+<!-- 头部 -->
+<div id="pHeader"></div>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-4 col-md-push-4">
+            <div class="text-center" style="margin-bottom: 50px">
+                <img id="userImg" class="img-rounded" src="..." alt="用户头像" style="height: 140px; width: 140px">
+                <h3 id="musername">liangliang</h3>
+            </div>
+            <ul class="list-group">
+                <li class="list-group-item">
+                    <b style="margin-left: 25px">我的问题</b>
+                    <a id="questionNum" class="pull-right" style="margin-right: 25px">222</a>
+                </li>
+                <li class="list-group-item">
+                    <b style="margin-left: 25px">粉丝</b>
+                    <a id="fansNum" class="pull-right" style="margin-right: 25px">111111</a>
+                </li>
+                <li class="list-group-item">
+                    <b style="margin-left: 25px">关注</b>
+                    <a id="followNum" class="pull-right" style="margin-right: 25px">111111</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+</body>
+</html>
