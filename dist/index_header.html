@@ -3,6 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <script src="static/js/jquery-1.12.4.min.js"></script>
+
+    <script>
+        var logoutUrl = "/api/admin/logout";
+
+        $("#logout").click(function (event) {
+            event.preventDefault();
+            $.ajax({
+                type: "POST",
+                url: logoutUrl,
+                dataType: "json",
+                cache: false,
+                beforeSend: function (XHR) {
+                    XHR.setRequestHeader("Authorization", localStorage.getItem("token"));
+                },
+                success: function (result) {
+                    if (result.code == 200) {
+                        clearTokenCookie();
+                        window.location.href = "index.html";
+                    } else {
+                        alert(result.message);
+                    }
+                }
+            });
+        });
+
+        function clearTokenCookie() {
+            localStorage.removeItem("token");
+            localStorage.removeItem("username");
+        }
+    </script>
 </head>
 <body>
 <nav class="navbar navbar-default">
@@ -50,7 +81,7 @@
                         <li role="separator" class="divider"></li>
                         <li><a href="my-question.html" class="dropdown-item">我的问题 </a></li>
                         <li role="separator" class="divider"></li>
-                        <li><a href="#" class="dropdown-item">退出登录</a></li>
+                        <li id="logout"><a href="#" class="dropdown-item">退出登录</a></li>
                     </ul>
                 </li>
             </ul>

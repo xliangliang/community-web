@@ -16,7 +16,7 @@
         $(function () {
             var token = localStorage.getItem("token");
             $.ajax({
-                type: "GET",
+                type: "POST",
                 url: "/api/admin/info",
                 contentType: "application/json",
                 cache: false,

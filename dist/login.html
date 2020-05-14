@@ -47,8 +47,8 @@
                     success: function (result) {
                         if (result.code == 200) {
                             setTokenCookie(result);
-                            window.location.href = "http://192.168.154.201:8001/index.html";
-                            //window.location.href = "http://192.168.101.201:8001/index.html";
+                            alert("登录成功!");
+                            window.location.href = "index.html";
                         } else {
                             alert(result.message);
                         }
@@ -68,11 +68,12 @@
 </head>
 <body class="cm-login">
 
-<div class="text-center" style="padding:90px 0 30px 0;background:#fff;border-bottom:1px solid #ddd">
-    <img src="static/img/liangliang_login.PNG" width="300" height="45">
+<div class="text-center">
+    <img src="static/img/liangliang_login.PNG" style="margin-top: 50px">
+    <hr/>
 </div>
 
-<div class="col-sm-6 col-md-4 col-lg-3" style="margin:40px auto; float:none;">
+<div class="col-sm-6 col-md-4 col-lg-3" style="margin:40px auto; float:none; margin-top: 50px">
     <form id="formHand">
         <div class="col-xs-12">
             <div class="form-group">
@@ -89,7 +90,7 @@
             </div>
         </div>
         <div class="col-xs-6">
-            <div class="checkbox"><label><input type="checkbox"> 记住密码 </label></div>
+            <a href="register.html">注册</a>
         </div>
         <div class="col-xs-6">
             <div id="gotoSubmit" class="btn btn-block btn-primary">登录</div>
