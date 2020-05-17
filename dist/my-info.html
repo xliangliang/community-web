@@ -14,14 +14,13 @@
         });
 
         $(function () {
-            var token = localStorage.getItem("token");
             $.ajax({
                 type: "POST",
                 url: "/api/admin/info",
                 contentType: "application/json",
                 cache: false,
                 beforeSend: function (XHR) {
-                    XHR.setRequestHeader("Authorization", token);
+                    XHR.setRequestHeader("Authorization", localStorage.getItem("token"));
                 },
                 success: function (result) {
                     if (result.code == 200) {
@@ -33,12 +32,78 @@
                         $("#fansNum").text(result.data.fansTotal);
                         $("#followNum").text(result.data.followTotal);
                     } else {
-                        alert("获取个人信息失败");
+                        alert(result.message);
                         window.location.href = "index.html";
                     }
                 }
             });
+
+            $("#editIcon").click(function () {
+                $("#uploadDiv").css("display","block");
+                $("#userImg").css("display","none");
+                $("#editIcon").css("display","none");
+                $("#musername").css("display","none");
+            });
         });
+
+        function upload() {
+            var files = $("#uploadFile").prop("files");
+            if (files.length == 0) {
+                alert("请选择文件");
+                return;
+            }
+            var formData = new FormData();
+            formData.append("file", files[0]);
+            $.ajax({
+                type: "POST",
+                url: "/api/minio/upload",
+                contentType: false,
+                dataType: "json",
+                cache: false,
+                async: false,
+                processData: false,
+                data: formData,
+                beforeSend: function (XHR) {
+                    XHR.setRequestHeader("Authorization", localStorage.getItem("token"));
+                },
+                success: function (result) {
+                    if (result.code == 200) {
+                        cancle();
+                        updateIcon(result.data.url);
+                    } else {
+                        alert(result.message);
+                    }
+                }
+            });
+        }
+
+        function updateIcon(iconUrl) {
+            $.ajax({
+                type: "POST",
+                url: "/api/admin/updateIcon",
+                dataType: "json",
+                cache: false,
+                data: {"iconUrl": iconUrl},
+                beforeSend: function (XHR) {
+                    XHR.setRequestHeader("Authorization", localStorage.getItem("token"));
+                },
+                success: function (result) {
+                    if (result.code == 200) {
+                        alert("修改头像成功！");
+                        $("#userImg").attr("src", iconUrl);
+                    } else {
+                        alert(result.message);
+                    }
+                }
+            });
+        }
+
+        function cancle() {
+            $("#uploadDiv").css("display","none");
+            $("#userImg").css("display","block");
+            $("#editIcon").css("display","block");
+            $("#musername").css("display","block");
+        }
     </script>
 </head>
 <body>
@@ -49,7 +114,14 @@
     <div class="row">
         <div class="col-md-4 col-md-push-4">
             <div class="text-center" style="margin-bottom: 50px">
-                <img id="userImg" class="img-rounded" src="..." alt="用户头像" style="height: 140px; width: 140px">
+                <div id="uploadDiv" style="display: none">
+                    <input id="uploadFile" type="file" style="margin-left: 231px">
+                    <input type="button" onclick="upload()" value="上传">
+                    <input type="button" onclick="cancle()" value="取消">
+                </div>
+
+                <img id="userImg" class="img-rounded" src="..." alt="用户头像" style="height: 140px; width: 140px"><br/>
+                <button id="editIcon">修改头像</button>
                 <h3 id="musername">liangliang</h3>
             </div>
             <ul class="list-group">
